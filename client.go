@@ -30,6 +30,10 @@ func (c *Client) Consume(ctx context.Context, req ConsumeRequest) (ConsumeRespon
 	return call[ConsumeResponse](ctx, c.nc, SubjectConsume, req)
 }
 
+func (c *Client) Release(ctx context.Context, req ReleaseRequest) (ReleaseResponse, error) {
+	return call[ReleaseResponse](ctx, c.nc, SubjectRelease, req)
+}
+
 func (c *Client) Configure(ctx context.Context, req ConfigureRequest) (Limit, error) {
 	return call[Limit](ctx, c.nc, SubjectConfigure, req)
 }

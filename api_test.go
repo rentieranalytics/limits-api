@@ -22,6 +22,16 @@ func TestRequestsAreFlat(t *testing.T) {
 	}
 }
 
+func TestReleaseResponse(t *testing.T) {
+	b, err := json.Marshal(ReleaseResponse{Reason: ReleaseExpired})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `{"returned":false,"reason":"expired"}`; string(b) != want {
+		t.Fatalf("got  %s\nwant %s", b, want)
+	}
+}
+
 func TestLimitOmitsUnsetFields(t *testing.T) {
 	b, err := json.Marshal(Limit{Key: Key{Resource: "valuation", Subject: "w"}, State: StateUnlimited, Period: "2026-10"})
 	if err != nil {

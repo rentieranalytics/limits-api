@@ -20,6 +20,7 @@ const (
 	SubjectLink         = "limits.v1.link"
 	SubjectUnlink       = "limits.v1.unlink"
 	SubjectGet          = "limits.v1.get"
+	SubjectRelease      = "limits.v1.release"
 )
 
 // ResourceValuation is the resource used for widget valuations; the widget
@@ -107,6 +108,29 @@ const (
 	DenyExhausted     = "exhausted"
 	DenyNotConfigured = "not_configured"
 )
+
+// ReleaseRequest gives back the unit consumed for OperationKey, e.g. when the
+// valuation produced no report. The unit goes back to the pool it was taken
+// from while its period is current; afterwards it has expired. Repeating the
+// call never gives back a second unit.
+type ReleaseRequest struct {
+	Key
+	OperationKey string `json:"operation_key"`
+}
+
+const (
+	ReleaseExpired     = "expired"
+	ReleaseNotConsumed = "not_consumed"
+)
+
+type ReleaseResponse struct {
+	// Returned is true when the unit went back to its pool.
+	Returned bool `json:"returned"`
+	// Reason is set when Returned is false.
+	Reason string `json:"reason,omitempty"`
+	// Replayed is true when the unit was released earlier for the same OperationKey.
+	Replayed bool `json:"replayed,omitempty"`
+}
 
 type ConsumeResponse struct {
 	Granted bool `json:"granted"`
