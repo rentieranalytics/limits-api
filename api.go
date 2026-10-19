@@ -171,7 +171,7 @@ type Limit struct {
 	Available *int64 `json:"available,omitempty"`
 	// Grants are the valid grants, kept also while unlimited.
 	Grants []Grant `json:"grants,omitempty"`
-	Used    int64  `json:"used"`
+	Used   int64   `json:"used"`
 	// Period is the current month as "YYYY-MM".
 	Period  string    `json:"period"`
 	ResetAt time.Time `json:"reset_at"`
