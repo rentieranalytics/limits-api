@@ -21,6 +21,8 @@ const (
 	SubjectUnlink       = "limits.v1.unlink"
 	SubjectGet          = "limits.v1.get"
 	SubjectRelease      = "limits.v1.release"
+	SubjectSuspend      = "limits.v1.suspend"
+	SubjectResume       = "limits.v1.resume"
 )
 
 // ResourceValuation is the resource used for widget valuations; the widget
@@ -110,6 +112,19 @@ type UnlinkRequest struct {
 	Key
 }
 
+// SuspendRequest refuses every consumption on the limit of Subject (reason
+// "suspended"), e.g. between subscriptions; grants keep running out
+// meanwhile. ResumeRequest lifts it. Both need a configured limit.
+type SuspendRequest struct {
+	OperationID string `json:"operation_id"`
+	Key
+}
+
+type ResumeRequest struct {
+	OperationID string `json:"operation_id"`
+	Key
+}
+
 // GetRequest reads the limit that applies to Subject.
 type GetRequest struct {
 	Key
@@ -131,6 +146,7 @@ const (
 const (
 	DenyExhausted     = "exhausted"
 	DenyNotConfigured = "not_configured"
+	DenySuspended     = "suspended"
 )
 
 // ReleaseRequest gives back the unit consumed for OperationKey, e.g. when the
@@ -182,7 +198,9 @@ type Limit struct {
 	Available *int64 `json:"available,omitempty"`
 	// Grants are the valid grants, kept also while unlimited.
 	Grants []Grant `json:"grants,omitempty"`
-	Used   int64   `json:"used"`
+	// Suspended means every consumption is refused.
+	Suspended bool  `json:"suspended,omitempty"`
+	Used      int64 `json:"used"`
 	// Period is the start of the current period: "YYYY-MM" for calendar
 	// months, "YYYY-MM-DD" for anchored periods.
 	Period string `json:"period"`

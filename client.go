@@ -34,6 +34,14 @@ func (c *Client) Release(ctx context.Context, req ReleaseRequest) (ReleaseRespon
 	return call[ReleaseResponse](ctx, c.nc, SubjectRelease, req)
 }
 
+func (c *Client) Suspend(ctx context.Context, req SuspendRequest) (Limit, error) {
+	return call[Limit](ctx, c.nc, SubjectSuspend, req)
+}
+
+func (c *Client) Resume(ctx context.Context, req ResumeRequest) (Limit, error) {
+	return call[Limit](ctx, c.nc, SubjectResume, req)
+}
+
 func (c *Client) Configure(ctx context.Context, req ConfigureRequest) (Limit, error) {
 	return call[Limit](ctx, c.nc, SubjectConfigure, req)
 }
