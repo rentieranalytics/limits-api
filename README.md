@@ -17,9 +17,9 @@ res, err := c.Consume(ctx, limitsapi.ConsumeRequest{
 
 | Subject | Request | Reply `data` |
 |---|---|---|
-| `limits.v1.configure` | `operation_id, resource, subject, monthly` | `Limit` |
+| `limits.v1.configure` | `operation_id, resource, subject, monthly[, period_anchor]` | `Limit` |
 | `limits.v1.set_unlimited` | `operation_id, resource, subject` | `Limit` |
-| `limits.v1.set_monthly` | `operation_id, resource, subject, monthly, add_current` | `Limit` |
+| `limits.v1.set_monthly` | `operation_id, resource, subject, monthly, add_current[, period_anchor]` | `Limit` |
 | `limits.v1.add_units` | `operation_id, resource, subject, units[, valid_until]` | `Limit` |
 | `limits.v1.delete` | `operation_id, resource, subject` | `Limit` |
 | `limits.v1.link` | `operation_id, resource, subject, parent` | `Limit` |

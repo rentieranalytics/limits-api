@@ -39,6 +39,18 @@ func TestAddUnitsWithValidity(t *testing.T) {
 	}
 }
 
+func TestPeriodAnchor(t *testing.T) {
+	anchor := 19
+	b, _ := json.Marshal(SetMonthlyRequest{OperationID: "op", Key: Key{Resource: "valuation", Subject: "s"}, Monthly: 75, PeriodAnchor: &anchor})
+	if want := `{"operation_id":"op","resource":"valuation","subject":"s","monthly":75,"add_current":0,"period_anchor":19}`; string(b) != want {
+		t.Fatalf("set_monthly: %s", b)
+	}
+	b, _ = json.Marshal(SetMonthlyRequest{OperationID: "op", Key: Key{Resource: "valuation", Subject: "s"}, Monthly: 75})
+	if want := `{"operation_id":"op","resource":"valuation","subject":"s","monthly":75,"add_current":0}`; string(b) != want {
+		t.Fatalf("without anchor: %s", b)
+	}
+}
+
 func TestReleaseResponse(t *testing.T) {
 	b, err := json.Marshal(ReleaseResponse{Reason: ReleaseExpired})
 	if err != nil {

@@ -33,11 +33,16 @@ type Key struct {
 }
 
 // ConfigureRequest creates a finite limit granting Monthly units from the
-// current month. It fails with CodeAlreadyConfigured if the limit exists.
+// current period. It fails with CodeAlreadyConfigured if the limit exists.
+//
+// PeriodAnchor is the day of month (1-31) periods start on, e.g. the day a
+// subscription started; empty or 1 means calendar months. In months shorter
+// than the anchor day a period starts on the last day of the month.
 type ConfigureRequest struct {
 	OperationID string `json:"operation_id"`
 	Key
-	Monthly int64 `json:"monthly"`
+	Monthly      int64 `json:"monthly"`
+	PeriodAnchor int   `json:"period_anchor,omitempty"`
 }
 
 // SetUnlimitedRequest creates the limit if needed and stops enforcing it.
@@ -46,14 +51,20 @@ type SetUnlimitedRequest struct {
 	Key
 }
 
-// SetMonthlyRequest sets the allowance granted from the next month and adds
-// AddCurrent units to the current month. An unlimited limit becomes finite
+// SetMonthlyRequest sets the allowance granted from the next period and adds
+// AddCurrent units to the current period. An unlimited limit becomes finite
 // immediately with Monthly+AddCurrent units available now.
+//
+// A PeriodAnchor different from the current one starts a new period anchored
+// at it at once, with Monthly+AddCurrent units and usage from zero (e.g. a
+// subscription starting on another day); grants are kept. Without it the
+// anchor does not change.
 type SetMonthlyRequest struct {
 	OperationID string `json:"operation_id"`
 	Key
-	Monthly    int64 `json:"monthly"`
-	AddCurrent int64 `json:"add_current"`
+	Monthly      int64 `json:"monthly"`
+	AddCurrent   int64 `json:"add_current"`
+	PeriodAnchor *int  `json:"period_anchor,omitempty"`
 }
 
 // AddUnitsRequest adds units that expire at the end of the current month or,
@@ -172,9 +183,13 @@ type Limit struct {
 	// Grants are the valid grants, kept also while unlimited.
 	Grants []Grant `json:"grants,omitempty"`
 	Used   int64   `json:"used"`
-	// Period is the current month as "YYYY-MM".
-	Period  string    `json:"period"`
-	ResetAt time.Time `json:"reset_at"`
+	// Period is the start of the current period: "YYYY-MM" for calendar
+	// months, "YYYY-MM-DD" for anchored periods.
+	Period string `json:"period"`
+	// PeriodAnchor is the day of month periods start on; absent for calendar
+	// months.
+	PeriodAnchor int       `json:"period_anchor,omitempty"`
+	ResetAt      time.Time `json:"reset_at"`
 	// UsageBySubject is the usage of the pool in Period by subject, e.g. by
 	// widget of an account. Set by get.
 	UsageBySubject map[string]int64 `json:"usage_by_subject,omitempty"`
