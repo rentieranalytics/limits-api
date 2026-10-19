@@ -56,11 +56,24 @@ type SetMonthlyRequest struct {
 	AddCurrent int64 `json:"add_current"`
 }
 
-// AddUnitsRequest adds units that expire at the end of the current month.
+// AddUnitsRequest adds units that expire at the end of the current month or,
+// with ValidUntil, a grant of units valid until then whatever the month (e.g.
+// a package valid for 12 months). Grants are used after the monthly balance,
+// the one expiring first before others, and survive the monthly reset.
 type AddUnitsRequest struct {
 	OperationID string `json:"operation_id"`
 	Key
-	Units int64 `json:"units"`
+	Units      int64      `json:"units"`
+	ValidUntil *time.Time `json:"valid_until,omitempty"`
+}
+
+// Grant is a batch of units with its own validity.
+type Grant struct {
+	// ID is the operation_id of the add_units call that created it.
+	ID         string    `json:"id"`
+	Units      int64     `json:"units"`
+	Remaining  int64     `json:"remaining"`
+	ValidUntil time.Time `json:"valid_until"`
 }
 
 // DeleteRequest removes the limit and the link; the key becomes not_configured.
@@ -150,8 +163,14 @@ type Limit struct {
 	State       string `json:"state"`
 	Monthly     int64  `json:"monthly"`
 	NextMonthly int64  `json:"next_monthly"`
-	// Balance is present only for the finite state.
+	// Balance is what remains of the monthly allowance; present only for the
+	// finite state.
 	Balance *int64 `json:"balance,omitempty"`
+	// Available is Balance plus units left in valid grants; present only for
+	// the finite state.
+	Available *int64 `json:"available,omitempty"`
+	// Grants are the valid grants, kept also while unlimited.
+	Grants []Grant `json:"grants,omitempty"`
 	Used    int64  `json:"used"`
 	// Period is the current month as "YYYY-MM".
 	Period  string    `json:"period"`

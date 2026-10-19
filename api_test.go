@@ -3,6 +3,7 @@ package limitsapi
 import (
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 // The JSON shape is the contract between services; these tests pin it.
@@ -19,6 +20,22 @@ func TestRequestsAreFlat(t *testing.T) {
 	want := `{"operation_id":"op-1","resource":"valuation","subject":"widget","parent":"account:1"}`
 	if string(b) != want {
 		t.Fatalf("got  %s\nwant %s", b, want)
+	}
+}
+
+func TestAddUnitsWithValidity(t *testing.T) {
+	until := time.Date(2027, time.October, 19, 0, 0, 0, 0, time.UTC)
+	b, err := json.Marshal(AddUnitsRequest{OperationID: "op", Key: Key{Resource: "valuation", Subject: "s"}, Units: 25, ValidUntil: &until})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `{"operation_id":"op","resource":"valuation","subject":"s","units":25,"valid_until":"2027-10-19T00:00:00Z"}`
+	if string(b) != want {
+		t.Fatalf("got  %s\nwant %s", b, want)
+	}
+	b, _ = json.Marshal(AddUnitsRequest{OperationID: "op", Key: Key{Resource: "valuation", Subject: "s"}, Units: 5})
+	if want := `{"operation_id":"op","resource":"valuation","subject":"s","units":5}`; string(b) != want {
+		t.Fatalf("without validity: %s", b)
 	}
 }
 
