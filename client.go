@@ -42,6 +42,10 @@ func (c *Client) Resume(ctx context.Context, req ResumeRequest) (Limit, error) {
 	return call[Limit](ctx, c.nc, SubjectResume, req)
 }
 
+func (c *Client) RevokeGrant(ctx context.Context, req RevokeGrantRequest) (Limit, error) {
+	return call[Limit](ctx, c.nc, SubjectRevokeGrant, req)
+}
+
 func (c *Client) Configure(ctx context.Context, req ConfigureRequest) (Limit, error) {
 	return call[Limit](ctx, c.nc, SubjectConfigure, req)
 }

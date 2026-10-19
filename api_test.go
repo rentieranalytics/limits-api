@@ -93,7 +93,7 @@ func TestResponseEnvelope(t *testing.T) {
 func TestOnlyInternalErrorsAreTemporary(t *testing.T) {
 	for _, code := range []string{
 		CodeInvalidRequest, CodeInvalidAmount, CodeNotConfigured,
-		CodeAlreadyConfigured, CodeUnlimited, CodeOperationConflict,
+		CodeAlreadyConfigured, CodeUnlimited, CodeOperationConflict, CodeGrantNotFound,
 	} {
 		if (&Error{Code: code}).Temporary() {
 			t.Errorf("%s must be permanent", code)

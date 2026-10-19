@@ -26,6 +26,7 @@ res, err := c.Consume(ctx, limitsapi.ConsumeRequest{
 | `limits.v1.unlink` | `operation_id, resource, subject` | `Limit` |
 | `limits.v1.suspend` | `operation_id, resource, subject` | `Limit` |
 | `limits.v1.resume` | `operation_id, resource, subject` | `Limit` |
+| `limits.v1.revoke_grant` | `operation_id, resource, subject, grant_id[, units]` | `Limit` |
 | `limits.v1.get` | `resource, subject` | `Limit` |
 | `limits.v1.consume` | `resource, subject, operation_key` | `ConsumeResponse` |
 | `limits.v1.release` | `resource, subject, operation_key` | `ReleaseResponse` |

@@ -23,6 +23,7 @@ const (
 	SubjectRelease      = "limits.v1.release"
 	SubjectSuspend      = "limits.v1.suspend"
 	SubjectResume       = "limits.v1.resume"
+	SubjectRevokeGrant  = "limits.v1.revoke_grant"
 )
 
 // ResourceValuation is the resource used for widget valuations; the widget
@@ -112,9 +113,11 @@ type UnlinkRequest struct {
 	Key
 }
 
-// SuspendRequest refuses every consumption on the limit of Subject (reason
-// "suspended"), e.g. between subscriptions; grants keep running out
-// meanwhile. ResumeRequest lifts it. Both need a configured limit.
+// SuspendRequest refuses every consumption of Subject and of subjects linked
+// to it (reason "suspended"), e.g. an account between subscriptions or a
+// paused widget of an active account. It needs no limit of the subject's own
+// and wins over a missing limit. Grants keep running out meanwhile.
+// ResumeRequest lifts it; delete lifts it too.
 type SuspendRequest struct {
 	OperationID string `json:"operation_id"`
 	Key
@@ -123,6 +126,16 @@ type SuspendRequest struct {
 type ResumeRequest struct {
 	OperationID string `json:"operation_id"`
 	Key
+}
+
+// RevokeGrantRequest takes back units left in a grant, e.g. after a refund:
+// all of them when Units is 0, otherwise at most Units. GrantID is the
+// operation_id of the add_units call that created the grant.
+type RevokeGrantRequest struct {
+	OperationID string `json:"operation_id"`
+	Key
+	GrantID string `json:"grant_id"`
+	Units   int64  `json:"units,omitempty"`
 }
 
 // GetRequest reads the limit that applies to Subject.
@@ -198,7 +211,8 @@ type Limit struct {
 	Available *int64 `json:"available,omitempty"`
 	// Grants are the valid grants, kept also while unlimited.
 	Grants []Grant `json:"grants,omitempty"`
-	// Suspended means every consumption is refused.
+	// Suspended means every consumption is refused: the subject or the pool it
+	// is linked to is suspended.
 	Suspended bool  `json:"suspended,omitempty"`
 	Used      int64 `json:"used"`
 	// Period is the start of the current period: "YYYY-MM" for calendar
@@ -226,6 +240,7 @@ const (
 	CodeAlreadyConfigured = "already_configured"
 	CodeUnlimited         = "unlimited"
 	CodeOperationConflict = "operation_conflict"
+	CodeGrantNotFound     = "grant_not_found"
 	CodeInternal          = "internal"
 )
 
